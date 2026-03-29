@@ -1,7 +1,7 @@
 package rest
 
 import (
-	"datahow-challenge/internal/core"
+	"datahow-challenge/internal/domain"
 	"datahow-challenge/internal/service"
 	"net/http"
 
@@ -20,13 +20,13 @@ func (h *Handler) Create(c echo.Context) error {
 
 	ctx := c.Request().Context()
 
-	var req core.CreateFeatureFlagRequest
+	var req domain.CreateFeatureFlagRequest
 	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, core.ErrorResponse{Code: core.ErrSvcInvalidInput.Code, Message: err.Error()})
+		return c.JSON(http.StatusBadRequest, domain.ErrorResponse{Code: domain.ErrSvcInvalidInput.Code, Message: err.Error()})
 	}
 
 	if err := req.IsValid(); err != nil {
-		return c.JSON(http.StatusBadRequest, core.ErrorResponse{Code: core.ErrSvcInvalidInput.Code, Message: err.Error()})
+		return c.JSON(http.StatusBadRequest, domain.ErrorResponse{Code: domain.ErrSvcInvalidInput.Code, Message: err.Error()})
 	}
 
 	created, svcErr := h.service.Create(ctx, req)
@@ -43,7 +43,7 @@ func (h *Handler) Get(c echo.Context) error {
 
 	id := c.Param("id")
 	if id == "" {
-		return c.JSON(http.StatusBadRequest, core.ErrorResponse{Code: core.ErrSvcInvalidInput.Code, Message: "id is required"})
+		return c.JSON(http.StatusBadRequest, domain.ErrorResponse{Code: domain.ErrSvcInvalidInput.Code, Message: "id is required"})
 	}
 
 	flag, svcErr := h.service.Get(ctx, id)
@@ -60,12 +60,12 @@ func (h *Handler) UpdateGlobal(c echo.Context) error {
 
 	id := c.Param("id")
 	if id == "" {
-		return c.JSON(http.StatusBadRequest, core.ErrorResponse{Code: core.ErrSvcInvalidInput.Code, Message: "id is required"})
+		return c.JSON(http.StatusBadRequest, domain.ErrorResponse{Code: domain.ErrSvcInvalidInput.Code, Message: "id is required"})
 	}
 
-	var req core.UpdateGlobalRequest
+	var req domain.UpdateGlobalRequest
 	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, core.ErrorResponse{Code: core.ErrSvcInvalidInput.Code, Message: err.Error()})
+		return c.JSON(http.StatusBadRequest, domain.ErrorResponse{Code: domain.ErrSvcInvalidInput.Code, Message: err.Error()})
 	}
 
 	if svcErr := h.service.UpdateGlobal(ctx, id, req); svcErr != nil {
@@ -81,17 +81,17 @@ func (h *Handler) UpdateUserOverride(c echo.Context) error {
 
 	id := c.Param("id")
 	if id == "" {
-		return c.JSON(http.StatusBadRequest, core.ErrorResponse{Code: core.ErrSvcInvalidInput.Code, Message: "id is required"})
+		return c.JSON(http.StatusBadRequest, domain.ErrorResponse{Code: domain.ErrSvcInvalidInput.Code, Message: "id is required"})
 	}
 
 	userID := c.Param("user_id")
 	if userID == "" {
-		return c.JSON(http.StatusBadRequest, core.ErrorResponse{Code: core.ErrSvcInvalidInput.Code, Message: "user_id is required"})
+		return c.JSON(http.StatusBadRequest, domain.ErrorResponse{Code: domain.ErrSvcInvalidInput.Code, Message: "user_id is required"})
 	}
 
-	var req core.UpdateUserOverrideRequest
+	var req domain.UpdateUserOverrideRequest
 	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, core.ErrorResponse{Code: core.ErrSvcInvalidInput.Code, Message: err.Error()})
+		return c.JSON(http.StatusBadRequest, domain.ErrorResponse{Code: domain.ErrSvcInvalidInput.Code, Message: err.Error()})
 	}
 
 	override, svcErr := h.service.UpdateUserOverride(ctx, id, userID, req)
@@ -108,12 +108,12 @@ func (h *Handler) EvaluateUser(c echo.Context) error {
 
 	id := c.Param("id")
 	if id == "" {
-		return c.JSON(http.StatusBadRequest, core.ErrorResponse{Code: core.ErrSvcInvalidInput.Code, Message: "id is required"})
+		return c.JSON(http.StatusBadRequest, domain.ErrorResponse{Code: domain.ErrSvcInvalidInput.Code, Message: "id is required"})
 	}
 
 	userID := c.Param("user_id")
 	if userID == "" {
-		return c.JSON(http.StatusBadRequest, core.ErrorResponse{Code: core.ErrSvcInvalidInput.Code, Message: "user_id is required"})
+		return c.JSON(http.StatusBadRequest, domain.ErrorResponse{Code: domain.ErrSvcInvalidInput.Code, Message: "user_id is required"})
 	}
 
 	response, svcErr := h.service.EvaluateForUser(ctx, id, userID)

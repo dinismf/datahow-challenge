@@ -2,28 +2,31 @@ package memory
 
 import (
 	"context"
-	"datahow-challenge/internal/core"
+	"datahow-challenge/internal/domain"
+	"fmt"
 	"sync"
 	"time"
 )
 
-type FeatureFlagRepository struct {
-	data map[string]core.FeatureFlag
+type FeatureFlagInMemoryRepository struct {
+	name string
+	data map[string]domain.FeatureFlag
 	mu   sync.RWMutex
 }
 
-func NewFeatureFlagRepository() *FeatureFlagRepository {
-	return &FeatureFlagRepository{
-		data: make(map[string]core.FeatureFlag),
+func NewFeatureFlagRepository() *FeatureFlagInMemoryRepository {
+	return &FeatureFlagInMemoryRepository{
+		name: "memory.FeatureFlagInMemoryRepository",
+		data: make(map[string]domain.FeatureFlag),
 	}
 }
 
-func (r *FeatureFlagRepository) Create(_ context.Context, flag core.FeatureFlag) (core.FeatureFlag, error) {
+func (r *FeatureFlagInMemoryRepository) Create(_ context.Context, flag domain.FeatureFlag) (domain.FeatureFlag, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
 	if _, ok := r.data[flag.Id]; ok {
-		return core.FeatureFlag{}, ErrKeyConflict
+		return domain.FeatureFlag{}, fmt.Errorf("%s: key %q: %w", r.name, flag.Id, domain.ErrConflict)
 	}
 
 	now := time.Now()
@@ -33,24 +36,24 @@ func (r *FeatureFlagRepository) Create(_ context.Context, flag core.FeatureFlag)
 	return flag, nil
 }
 
-func (r *FeatureFlagRepository) GetByID(_ context.Context, id string) (core.FeatureFlag, error) {
+func (r *FeatureFlagInMemoryRepository) GetByID(_ context.Context, id string) (domain.FeatureFlag, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
 	flag, ok := r.data[id]
 	if !ok {
-		return core.FeatureFlag{}, ErrKeyNotFound
+		return domain.FeatureFlag{}, fmt.Errorf("%s: key %q: %w", r.name, id, domain.ErrNotFound)
 	}
 	return flag, nil
 }
 
-func (r *FeatureFlagRepository) Update(_ context.Context, flag core.FeatureFlag) (core.FeatureFlag, error) {
+func (r *FeatureFlagInMemoryRepository) Update(_ context.Context, flag domain.FeatureFlag) (domain.FeatureFlag, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
 	existing, ok := r.data[flag.Id]
 	if !ok {
-		return core.FeatureFlag{}, ErrKeyNotFound
+		return domain.FeatureFlag{}, fmt.Errorf("%s: key %q: %w", r.name, flag.Id, domain.ErrNotFound)
 	}
 
 	flag.CreatedAt = existing.CreatedAt
@@ -59,7 +62,7 @@ func (r *FeatureFlagRepository) Update(_ context.Context, flag core.FeatureFlag)
 	return flag, nil
 }
 
-func (r *FeatureFlagRepository) Delete(_ context.Context, id string) error {
+func (r *FeatureFlagInMemoryRepository) Delete(_ context.Context, id string) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 

@@ -1,11 +1,11 @@
-package core
+package domain
 
 import "fmt"
 
 // Pre-defined ServiceErrors shared across the service layer.
 // Use WithReason to attach internal context without changing the client message:
 //
-//	return core.ErrSvcNotFound.WithReason(fmt.Errorf("flagID=%s", id))
+//	return domain.ErrSvcNotFound.WithReason(fmt.Errorf("flagID=%s", id))
 var (
 	ErrSvcNotFound     = &ServiceError{Code: "4000", Message: "resource not found"}
 	ErrSvcInvalidInput = &ServiceError{Code: "4001", Message: "invalid input"}

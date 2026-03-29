@@ -2,23 +2,26 @@ package memory
 
 import (
 	"context"
-	"datahow-challenge/internal/core"
+	"datahow-challenge/internal/domain"
+	"fmt"
 	"sync"
 	"time"
 )
 
-type UserOverrideRepository struct {
-	data map[string]core.UserOverride // key: flagId:userId
+type UserOverrideInMemoryRepository struct {
+	name string
+	data map[string]domain.UserOverride // key: flagId:userId
 	mu   sync.RWMutex
 }
 
-func NewUserOverrideRepository() *UserOverrideRepository {
-	return &UserOverrideRepository{
-		data: make(map[string]core.UserOverride),
+func NewUserOverrideRepository() *UserOverrideInMemoryRepository {
+	return &UserOverrideInMemoryRepository{
+		name: "memory.UserOverrideInMemoryRepository",
+		data: make(map[string]domain.UserOverride),
 	}
 }
 
-func (r *UserOverrideRepository) Set(_ context.Context, override core.UserOverride) (core.UserOverride, error) {
+func (r *UserOverrideInMemoryRepository) Set(_ context.Context, override domain.UserOverride) (domain.UserOverride, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -34,19 +37,19 @@ func (r *UserOverrideRepository) Set(_ context.Context, override core.UserOverri
 	return override, nil
 }
 
-func (r *UserOverrideRepository) Get(_ context.Context, flagId, userId string) (core.UserOverride, error) {
+func (r *UserOverrideInMemoryRepository) Get(_ context.Context, flagId, userId string) (domain.UserOverride, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
 	key := flagId + ":" + userId
 	o, ok := r.data[key]
 	if !ok {
-		return core.UserOverride{}, ErrKeyNotFound
+		return domain.UserOverride{}, fmt.Errorf("%s: key %q: %w", r.name, key, domain.ErrNotFound)
 	}
 	return o, nil
 }
 
-func (r *UserOverrideRepository) Delete(_ context.Context, flagId, userId string) error {
+func (r *UserOverrideInMemoryRepository) Delete(_ context.Context, flagId, userId string) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 

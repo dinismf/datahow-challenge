@@ -2,8 +2,8 @@ package main
 
 import (
 	"datahow-challenge/internal/infrastructure/memory"
+	httpTransport "datahow-challenge/internal/presentation/rest"
 	"datahow-challenge/internal/service"
-	httpTransport "datahow-challenge/internal/transport/rest"
 
 	"github.com/labstack/echo/v4"
 )
