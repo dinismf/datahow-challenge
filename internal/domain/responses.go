@@ -7,12 +7,12 @@ type ErrorResponse struct {
 	Message string `json:"message"`
 }
 
-func NewErrorResponse(code string, message string) ErrorResponse {
+func newErrorResponse(code string, message string) ErrorResponse {
 	return ErrorResponse{Code: code, Message: message}
 }
 
 func NewBadRequestError(message string) ErrorResponse {
-	return NewErrorResponse(ErrSvcInvalidInput.Code, message)
+	return newErrorResponse(ErrSvcInvalidInput.Code, message)
 }
 
 type FeatureFlagResponse struct {

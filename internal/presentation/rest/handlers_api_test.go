@@ -68,7 +68,7 @@ func TestCreateHandler(t *testing.T) {
 	t.Run("returns 409 when key already exists", func(t *testing.T) {
 		repo, _, e := stack(t)
 		flag := domain.NewFeatureFlag("existing", "Existing", false)
-		repo.On("Create", flag).Return(domain.FeatureFlag{}, domain.ErrConflict)
+		repo.On("Create", flag).Return(domain.FeatureFlag{}, domain.ErrInfraConflict)
 
 		rec := do(e, http.MethodPost, "/flags", `{"key":"existing","name":"Existing"}`)
 
@@ -107,7 +107,7 @@ func TestGetHandler(t *testing.T) {
 
 	t.Run("returns 404 when flag does not exist", func(t *testing.T) {
 		repo, _, e := stack(t)
-		repo.On("GetByID", "missing").Return(domain.FeatureFlag{}, domain.ErrNotFound)
+		repo.On("GetByID", "missing").Return(domain.FeatureFlag{}, domain.ErrInfraNotFound)
 
 		rec := do(e, http.MethodGet, "/flags/missing", "")
 
@@ -134,7 +134,7 @@ func TestUpdateGlobalHandler(t *testing.T) {
 
 	t.Run("returns 404 when flag does not exist", func(t *testing.T) {
 		repo, _, e := stack(t)
-		repo.On("GetByID", "missing").Return(domain.FeatureFlag{}, domain.ErrNotFound)
+		repo.On("GetByID", "missing").Return(domain.FeatureFlag{}, domain.ErrInfraNotFound)
 
 		rec := do(e, http.MethodPut, "/flags/missing/global", `{"enabled":true}`)
 
@@ -147,7 +147,7 @@ func TestUpdateGlobalHandler(t *testing.T) {
 		flag := domain.NewFeatureFlag("my-flag", "My Flag", false)
 		updated := domain.NewFeatureFlag("my-flag", "My Flag", true)
 		repo.On("GetByID", "my-flag").Return(flag, nil)
-		repo.On("Update", updated).Return(domain.FeatureFlag{}, domain.ErrInternal)
+		repo.On("Update", updated).Return(domain.FeatureFlag{}, domain.ErrInfraInternal)
 
 		rec := do(e, http.MethodPut, "/flags/my-flag/global", `{"enabled":true}`)
 
@@ -178,7 +178,7 @@ func TestUpdateUserOverrideHandler(t *testing.T) {
 
 	t.Run("returns 404 when flag does not exist", func(t *testing.T) {
 		repo, _, e := stack(t)
-		repo.On("GetByID", "missing").Return(domain.FeatureFlag{}, domain.ErrNotFound)
+		repo.On("GetByID", "missing").Return(domain.FeatureFlag{}, domain.ErrInfraNotFound)
 
 		rec := do(e, http.MethodPut, "/flags/missing/users/user-1", `{"enabled":true}`)
 
@@ -207,7 +207,7 @@ func TestEvaluateUserHandler(t *testing.T) {
 	t.Run("returns global state when global is off and no override", func(t *testing.T) {
 		repo, overrides, e := stack(t)
 		repo.On("GetByID", "my-flag").Return(domain.NewFeatureFlag("my-flag", "My Flag", false), nil)
-		overrides.On("Get", "my-flag", "user-1").Return(domain.UserOverride{}, domain.ErrNotFound)
+		overrides.On("Get", "my-flag", "user-1").Return(domain.UserOverride{}, domain.ErrInfraNotFound)
 
 		rec := do(e, http.MethodGet, "/flags/my-flag/users/user-1/evaluation", "")
 
@@ -252,7 +252,7 @@ func TestEvaluateUserHandler(t *testing.T) {
 
 	t.Run("returns 404 when flag does not exist", func(t *testing.T) {
 		repo, overrides, e := stack(t)
-		repo.On("GetByID", "my-flag").Return(domain.FeatureFlag{}, domain.ErrNotFound)
+		repo.On("GetByID", "my-flag").Return(domain.FeatureFlag{}, domain.ErrInfraNotFound)
 
 		rec := do(e, http.MethodGet, "/flags/my-flag/users/user-1/evaluation", "")
 

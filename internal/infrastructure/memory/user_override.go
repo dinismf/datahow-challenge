@@ -44,15 +44,7 @@ func (r *UserOverrideInMemoryRepository) Get(_ context.Context, flagId, userId s
 	key := flagId + ":" + userId
 	o, ok := r.data[key]
 	if !ok {
-		return domain.UserOverride{}, fmt.Errorf("%s: key %q: %w", r.name, key, domain.ErrNotFound)
+		return domain.UserOverride{}, fmt.Errorf("%s: key %q: %w", r.name, key, domain.ErrInfraNotFound)
 	}
 	return o, nil
-}
-
-func (r *UserOverrideInMemoryRepository) Delete(_ context.Context, flagId, userId string) error {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-
-	delete(r.data, flagId+":"+userId)
-	return nil
 }

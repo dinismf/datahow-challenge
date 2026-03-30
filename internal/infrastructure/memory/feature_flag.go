@@ -26,7 +26,7 @@ func (r *FeatureFlagInMemoryRepository) Create(_ context.Context, flag domain.Fe
 	defer r.mu.Unlock()
 
 	if _, ok := r.data[flag.Id]; ok {
-		return domain.FeatureFlag{}, fmt.Errorf("%s: key %q: %w", r.name, flag.Id, domain.ErrConflict)
+		return domain.FeatureFlag{}, fmt.Errorf("%s: key %q: %w", r.name, flag.Id, domain.ErrInfraConflict)
 	}
 
 	now := time.Now()
@@ -42,7 +42,7 @@ func (r *FeatureFlagInMemoryRepository) GetByID(_ context.Context, id string) (d
 
 	flag, ok := r.data[id]
 	if !ok {
-		return domain.FeatureFlag{}, fmt.Errorf("%s: key %q: %w", r.name, id, domain.ErrNotFound)
+		return domain.FeatureFlag{}, fmt.Errorf("%s: key %q: %w", r.name, id, domain.ErrInfraNotFound)
 	}
 	return flag, nil
 }
@@ -53,7 +53,7 @@ func (r *FeatureFlagInMemoryRepository) Update(_ context.Context, flag domain.Fe
 
 	existing, ok := r.data[flag.Id]
 	if !ok {
-		return domain.FeatureFlag{}, fmt.Errorf("%s: key %q: %w", r.name, flag.Id, domain.ErrNotFound)
+		return domain.FeatureFlag{}, fmt.Errorf("%s: key %q: %w", r.name, flag.Id, domain.ErrInfraNotFound)
 	}
 
 	flag.CreatedAt = existing.CreatedAt

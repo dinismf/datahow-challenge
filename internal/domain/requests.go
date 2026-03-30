@@ -12,8 +12,14 @@ func (r CreateFeatureFlagRequest) IsValid() error {
 	if r.Key == "" {
 		return errors.New("key is required")
 	}
+	if len(r.Key) > 255 {
+		return errors.New("key exceeds maximum length of 255 characters")
+	}
 	if r.Name == "" {
 		return errors.New("name is required")
+	}
+	if len(r.Name) > 255 {
+		return errors.New("name exceeds maximum length of 255 characters")
 	}
 
 	return nil
